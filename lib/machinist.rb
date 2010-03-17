@@ -1,5 +1,5 @@
 require 'sham'
- 
+
 module Machinist
 
   # A Lathe is used to execute the blueprint and construct an object.
@@ -33,10 +33,11 @@ module Machinist
       end
       lathe
     end
-    
+
     def initialize(adapter, object, attributes = {})
       @adapter = adapter
       @object  = object
+      @in_attribute_generator_for = nil
       attributes.each {|key, value| assign_attribute(key, value) }
     end
 
@@ -44,7 +45,7 @@ module Machinist
       yield @object if block_given?
       @object
     end
-    
+
     def method_missing(symbol, *args, &block)
       if attribute_assigned?(symbol)
         # If we've already assigned the attribute, return that.
@@ -61,29 +62,46 @@ module Machinist
     def assigned_attributes
       @assigned_attributes ||= {}
     end
-    
+
+    attr_reader :in_attribute_generator_for
+
+    # Lets you do:
+    #   email                 { next_unused_value{Sham.email} }
+    # instead of:
+    #   email                 { while User.find_by_email(a=Sham.email); end; a }
+    def next_unused_value
+      #puts "in_attribute_generator_for=#{in_attribute_generator_for.inspect}"
+      while object.class.send("find_by_#{in_attribute_generator_for}", value = yield)
+        #puts "#{value} already used, skipping"
+      end
+      value
+    end
+
     # Undef a couple of methods that are common ActiveRecord attributes.
     # (Both of these are deprecated in Ruby 1.8 anyway.)
     undef_method :id   if respond_to?(:id)
     undef_method :type if respond_to?(:type)
-    
+
   private
-    
+
     def nil_or_empty?(object)
       object.respond_to?(:empty?) ? object.empty? : object.nil?
     end
-    
+
     def assign_attribute(key, value)
+      #puts "assign_attribute(#{key}, #{value})"
       assigned_attributes[key.to_sym] = value
       @object.send("#{key}=", value)
     end
-  
+
     def attribute_assigned?(key)
       assigned_attributes.has_key?(key.to_sym)
     end
-    
+
     def generate_attribute_value(attribute, *args)
+      #puts "generate_attribute_value(#{attribute})"
       if block_given?
+        @in_attribute_generator_for = attribute
         # If we've got a block, use that to generate the value.
         yield
       else
@@ -98,7 +116,7 @@ module Machinist
         end
       end
     end
-    
+
   end
 
   # This sets a flag that stops make from saving objects, so
