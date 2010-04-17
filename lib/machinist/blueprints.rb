@@ -6,18 +6,13 @@ module Machinist
     end
     
     module ClassMethods
-      def blueprint(name = :master, &blueprint)
-        @blueprints ||= {}
-        @blueprints[name] = blueprint if block_given?
-        @blueprints[name]
-      end
-    
-      def named_blueprints
-        @blueprints.reject{|name,_| name == :master }.keys
+      def blueprint(&blueprint)
+        @blueprint = blueprint if block_given?
+        @blueprint
       end
     
       def clear_blueprints!
-        @blueprints = {}
+        @blueprint = nil
       end
     end
     

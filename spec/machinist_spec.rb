@@ -32,24 +32,10 @@ module MachinistSpecs
       lambda { Person.make }.should raise_error(RuntimeError, "No blueprint for class MachinistSpecs::Person")
     end
   
-    it "should set an attribute on the constructed object from a constant in the blueprint" do
-      Person.blueprint do
-        name "Fred"
-      end
-      Person.make.name.should == "Fred"
-    end
-  
     it "should set an attribute on the constructed object from a block in the blueprint" do
       Person.blueprint do
         name { "Fred" }
       end
-      Person.make.name.should == "Fred"
-    end
-  
-    it "should default to calling Sham for an attribute in the blueprint" do
-      Sham.clear
-      Sham.name { "Fred" }
-      Person.blueprint { name }
       Person.make.name.should == "Fred"
     end
   
@@ -101,51 +87,6 @@ module MachinistSpecs
       Post.make.body.should == "Test"
     end
   
-    describe "named blueprints" do
-      before do
-        @block_called = false
-        Person.blueprint do
-          name  { "Fred" }
-          admin { @block_called = true; false }
-        end
-        Person.blueprint(:admin) do
-          admin { true }
-        end
-        @person = Person.make(:admin)
-      end
-      
-      it "should override an attribute from the parent blueprint in the child blueprint" do
-        @person.admin.should == true
-      end
-    
-      it "should not call the block for an attribute from the parent blueprint if that attribute is overridden in the child" do
-        @block_called.should be_false
-      end
-    
-      it "should set an attribute defined in the parent blueprint" do
-        @person.name.should == "Fred"
-      end
-
-      it "should return the correct list of named blueprints" do
-        Person.blueprint(:foo) { }
-        Person.blueprint(:bar) { }
-        Person.named_blueprints.to_set.should == [:admin, :foo, :bar].to_set
-      end
-
-      it "should raise exception for make if named blueprint is not defined" do
-        lambda { Person.make(:bogus) }.should raise_error(
-          RuntimeError, "No blueprint named 'bogus' defined for class MachinistSpecs::Person"
-        )
-      end
-      
-      it "should raise a sensible error when calling a named blueprint with no master" do
-        Post.blueprint(:foo) { }
-        lambda { Post.make(:foo) }.should raise_error(
-          RuntimeError, "Can't construct an object from a named blueprint without a default blueprint for class MachinistSpecs::Post"
-        )
-      end
-    end
-
     describe "blueprint inheritance" do
       it "should inherit blueprinted attributes from the parent class" do
         Dad.blueprint do
@@ -175,30 +116,11 @@ module MachinistSpecs
         lambda { Dad.make }.should raise_error(RuntimeError)
         Son.make.name.should == "Fred"
       end
-
-      it "should follow inheritance for named blueprints correctly" do
-        Dad.blueprint do
-          name { "John" }
-        end
-        Dad.blueprint(:special) do
-          name { "Paul" }
-        end
-        Son.blueprint           { }
-        Son.blueprint(:special) { }
-        Son.make(:special).name.should == "John"
-      end
     end
 
     describe "clear_blueprints! method" do
-      it "should clear the list of blueprints" do
-        Person.blueprint(:foo){}
-        Person.clear_blueprints!
-        Person.named_blueprints.should == []
-      end
-  
-      it "should clear master blueprint too" do
-        Person.blueprint(:foo) {}
-        Person.blueprint {} # master
+      it "should clear the blueprint" do
+        Person.blueprint {}
         Person.clear_blueprints!
         lambda { Person.make }.should raise_error(RuntimeError)
       end
