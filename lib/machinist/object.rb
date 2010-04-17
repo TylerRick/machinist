@@ -9,9 +9,9 @@ module Machinist
     end
   
     module ClassMethods
-      def make(*args, &block)
-        lathe = Lathe.run(self.new, *args)
-        lathe.object(&block)
+      def make(attributes = {}, &block)
+        object = Machinist::Lathe.make(self, attributes)
+        block_given? ? yield(object) : object
       end
     end
   end

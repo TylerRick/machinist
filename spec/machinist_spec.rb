@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/spec_helper'
-require 'machinist/object'
+require 'machinist'
 
 module MachinistSpecs
   
@@ -85,6 +85,17 @@ module MachinistSpecs
         body  { title }
       end
       Post.make.body.should == "Test"
+    end
+    
+    it "should allow passing a block to make" do
+      Post.blueprint do
+        title { "Test" }
+      end
+      result = Post.make do |post|
+        post.title.should == "Test"
+        "result"
+      end
+      result.should == "result"
     end
   
     describe "blueprint inheritance" do
