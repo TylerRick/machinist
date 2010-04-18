@@ -14,7 +14,9 @@ module CachingSpecs
   
   describe Machinist::Shop do
     before(:suite) do
-      ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/log/test.log")
+      logger = Logger.new(File.dirname(__FILE__) + "/log/test.log")
+      logger.level = Logger::DEBUG
+      ActiveRecord::Base.logger = logger
       # FIXME: Can we test against sqlite?
       # ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :database => ":memory:")
       ActiveRecord::Base.establish_connection(
@@ -31,6 +33,14 @@ module CachingSpecs
       Machinist::Shop.instance.reset_warehouse
       Post.blueprint { }
       Comment.blueprint { }
+    end
+    
+    def fake_test
+      Post.transaction do
+        Machinist::Shop.instance.reset
+        yield
+        raise ActiveRecord::Rollback
+      end
     end
     
     it "should cache an object" do
@@ -50,6 +60,22 @@ module CachingSpecs
       Machinist::Shop.instance.reset
       Post.make(:title => "Test Title").should == post
       Post.make(:title => "Test Title").should_not == post
+    end
+    
+    it "should ensure future copies of a cached object do not reflect changes to the original" do
+      post = nil
+      
+      fake_test do
+        post = Post.make(:title => "Test Title")
+        post.title = "Changed Title"
+        post.save!
+      end
+      
+      fake_test do
+        new_post = Post.make(:title => "Test Title")
+        new_post.should == post
+        new_post.title.should == "Test Title"
+      end
     end
     
     # it "should cache multiple objects with the same class and attributes" do
@@ -85,16 +111,6 @@ module CachingSpecs
     #   comment = Comment.make(:author => "Test Author")
     #   comment.should be_a(Comment)
     #   comment.author.should == "Test Author"
-    # end
-    #     
-    # it "should ensure future copies of a cached object do not reflect changes to the original" do
-    #   post_a = Post.make(:title => "Test Title")
-    #   post_a.title = "Changed Title"
-    #   
-    #   Machinist::Shop.instance.reset
-    #   post_b = Post.make(:title => "Test Title")
-    #   post_b.duped_from.should == post_a.duped_from
-    #   post_b.title.should == "Test Title"
     # end
     
   end

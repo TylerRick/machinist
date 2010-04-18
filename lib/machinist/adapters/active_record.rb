@@ -13,8 +13,15 @@ module Machinist
         klass.find(object)
       end
       
-      def self.outside_transaction(&block)
-        Thread.new(&block).value
+      def self.outside_transaction
+        thread = Thread.new do
+          begin
+            yield
+          ensure
+            ::ActiveRecord::Base.connection_pool.checkin(::ActiveRecord::Base.connection)
+          end
+        end
+        thread.value
       end
       
     end
