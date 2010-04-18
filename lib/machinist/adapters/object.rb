@@ -28,7 +28,7 @@ class Object #:nodoc:
   end
   
   def make(attributes = {}, &block)
-    object = Machinist::Shop.instance.make(self, attributes)
+    object = Machinist::Lathe.make(self, attributes)
     block_given? ? yield(object) : object
   end
 end

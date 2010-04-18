@@ -26,7 +26,7 @@ module Machinist
       if shelf.empty?
         item = adapter.outside_transaction do
           item = Lathe.make(klass, attributes)
-          item.save!  # FIXME: Where should this live?
+          item.save! if item.respond_to?(:save!) # FIXME: Where should this live?
           item
         end
         @warehouse[klass, attributes] << adapter.serialize(klass, item)
