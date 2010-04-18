@@ -10,7 +10,7 @@ module Machinist
   
     module ClassMethods
       def make(attributes = {}, &block)
-        object = Machinist::Tester.current.make(self, attributes)
+        object = Machinist::Shop.instance.make(self, attributes)
         block_given? ? yield(object) : object
       end
     end

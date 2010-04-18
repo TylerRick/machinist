@@ -1,0 +1,22 @@
+require 'machinist/warehouse'
+
+describe Machinist::Warehouse do
+  
+  it "should store and retrieve values" do
+    warehouse = Machinist::Warehouse.new
+    warehouse[1, 2] = "example"
+    warehouse[1, 2].should == "example"
+  end
+  
+  it "should return an empty array for a new key" do
+    warehouse = Machinist::Warehouse.new
+    warehouse[1, 2].should == []
+  end
+  
+  it "should clone" do
+    warehouse = Machinist::Warehouse.new
+    warehouse[1, 2] = "example"
+    warehouse.clone.should == warehouse
+  end
+  
+end

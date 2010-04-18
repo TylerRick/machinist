@@ -1,8 +1,7 @@
 require 'machinist/blueprints'
-require 'machinist/caching'
 require 'machinist/lathe'
 require 'machinist/object'
-require 'machinist/tester'
+require 'machinist/shop'
 
 # TODO: Top level docs.
 module Machinist
