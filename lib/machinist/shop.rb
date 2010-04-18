@@ -21,28 +21,15 @@ module Machinist
     end
 
     def make(klass, attributes = {})
+      adapter = klass.machinist_adapter
       shelf = @back_room[klass, attributes]
       if shelf.empty?
-        item = on_other_connection { Lathe.make(klass, attributes) }
-        @warehouse[klass, attributes] << serialize(klass, item)
+        item = adapter.outside_transaction { Lathe.make(klass, attributes) }
+        @warehouse[klass, attributes] << adapter.serialize(klass, item)
         item
       else
-        instantiate(klass, shelf.shift)
+        adapter.instantiate(klass, shelf.shift)
       end
-    end
-
-    def serialize(klass, item)
-      # item.id 
-      item
-    end
-
-    def instantiate(klass, item)
-      # klass.find(item)
-      item.dup
-    end
-
-    def on_other_connection(&block)
-      Thread.new(&block).value
     end
 
   end
