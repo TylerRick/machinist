@@ -24,3 +24,7 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
+
+task :notes do
+   system "grep -n 'FIXME\\|TODO' lib/**/*.rb spec/**/*.rb"
+end
