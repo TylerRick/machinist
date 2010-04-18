@@ -25,6 +25,7 @@ module MachinistSpecs
 
   describe Machinist do
     before(:each) do
+      Machinist::Tester.tester_class = Machinist::Tester::Simple
       [Person, Post, Grandpa, Dad, Son].each(&:clear_blueprints!)
     end
 

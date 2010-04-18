@@ -16,3 +16,11 @@ end
 
 desc 'Run the specs.'
 task :default => :spec
+
+require 'rake/rdoctask'
+Rake::RDocTask.new(:rdoc) do |rdoc|
+  rdoc.rdoc_dir = 'doc'
+  rdoc.title    = 'Machinist'
+  rdoc.options << '--line-numbers' << '--inline-source'
+  rdoc.rdoc_files.include('lib/**/*.rb')
+end

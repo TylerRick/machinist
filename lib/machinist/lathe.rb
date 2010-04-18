@@ -5,34 +5,37 @@ module Machinist
   # A Lathe is used to execute the blueprint and construct an object.
   #
   # The blueprint is instance_eval'd against the Lathe.
-  class Lathe
+  class Lathe #:nodoc:
     def self.make(klass, attributes = {})
-      run(klass.new, attributes).object
-    end
-    
-    def self.run(object, attributes = {})
-      raise "No blueprint for class #{object.class}" if object.class.blueprint.nil?
+      raise "No blueprint for class #{klass}" if klass.blueprint.nil?
       
-      lathe = self.new(object, attributes)
-      klass = object.class
+      object = klass.new
+      lathe  = self.new(object, attributes)
       while klass
         lathe.instance_eval(&klass.blueprint) if klass.respond_to?(:blueprint) && klass.blueprint
         klass = klass.superclass
       end
-      lathe
+      object
     end
     
-    def initialize(object, attributes = {})
-      @object  = object
+    def initialize(object, attributes = {}) #:nodoc:
+      @object = object
       attributes.each {|key, value| assign_attribute(key, value) }
     end
 
+    # Call this from within a blueprint to get at the object being constructed.
+    #
+    # e.g.
+    #   Post.blueprint do
+    #     title { "A Title" }
+    #     body  { object.title.downcase }
+    #   end
     def object
       yield @object if block_given?
       @object
     end
     
-    def method_missing(symbol, *args)
+    def method_missing(symbol, *args) #:nodoc:
       if attribute_assigned?(symbol)
         @object.send(symbol)
       elsif block_given?

@@ -1,16 +1,18 @@
 module Machinist
-  # Include this in a class to allow defining blueprints for that class.
+  # TODO: Blueprint docs.
   module Blueprints
-    def self.included(base)
+    def self.included(base) #:nodoc:
       base.extend(ClassMethods)
     end
     
     module ClassMethods
+      # TODO: docs.
       def blueprint(&blueprint)
         @blueprint = blueprint if block_given?
         @blueprint
       end
-    
+
+      # TODO: docs.    
       def clear_blueprints!
         @blueprint = nil
       end

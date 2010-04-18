@@ -1,5 +1,9 @@
 require 'machinist/blueprints'
+require 'machinist/caching'
 require 'machinist/lathe'
 require 'machinist/object'
-require 'machinist/object_cache'
-require 'machinist/test_manager'
+require 'machinist/tester'
+
+# TODO: Top level docs.
+module Machinist
+end
