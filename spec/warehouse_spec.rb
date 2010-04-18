@@ -11,6 +11,8 @@ describe Machinist::Warehouse do
   it "should return an empty array for a new key" do
     warehouse = Machinist::Warehouse.new
     warehouse[1, 2].should == []
+    warehouse[3, 4] << "example"
+    warehouse[3, 4].should == ["example"]
   end
   
   it "should clone" do

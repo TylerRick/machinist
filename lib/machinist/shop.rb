@@ -25,6 +25,7 @@ module Machinist
       shelf = @back_room[klass, attributes]
       if shelf.empty?
         item = adapter.outside_transaction { Lathe.make(klass, attributes) }
+        item.save!  # FIXME: Where should this live?
         @warehouse[klass, attributes] << adapter.serialize(klass, item)
         item
       else

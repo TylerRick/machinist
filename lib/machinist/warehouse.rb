@@ -1,9 +1,5 @@
 module Machinist
   class Warehouse < Hash #:nodoc:
-    def initialize
-      super { Array.new }
-    end
-    
     def clone
       clone = Warehouse.new
       each_pair do |key, value|
@@ -18,6 +14,7 @@ module Machinist
     end
 
     def [](*keys)
+      self[*keys] = [] if !has_key?(keys)
       super(keys)
     end
   end

@@ -1,5 +1,5 @@
-require 'machinist'
 require 'machinist/blueprints'
+require 'active_record'
 
 module Machinist
   module Adapters
@@ -10,7 +10,7 @@ module Machinist
       end
       
       def self.instantiate(klass, object)
-        klass.find(object.id)
+        klass.find(object)
       end
       
       def self.outside_transaction(&block)

@@ -2,3 +2,5 @@ coverage
 doc
 *.gem
 *.project
+spec/log/*
+spec/db/*.sqlite3
