@@ -41,6 +41,7 @@ module Machinist
       elsif block_given?
         assign_attribute(symbol, yield)
       else
+        # FIXME: Raise a better exception.
         raise "Attribute not assigned."
       end
     end

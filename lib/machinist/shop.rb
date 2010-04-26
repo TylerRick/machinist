@@ -20,6 +20,7 @@ module Machinist
       @back_room = @warehouse.clone
     end
 
+    # TODO: This should work with sqlite too.
     def make(klass, attributes = {})
       adapter = klass.machinist_adapter
       shelf = @back_room[klass, attributes]
